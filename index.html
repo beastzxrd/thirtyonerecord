@@ -1,166 +1,68 @@
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thirty One Record</title>
-    <meta name="description" content="Thirty One Record - Tu sitio web en una app" />
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#667eea" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    
-    <!-- Manifest and Icons -->
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    
-    <base href="/" />
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-      }
-      
-      .container {
-        background: white;
-        border-radius: 12px;
-        padding: 40px 30px;
-        text-align: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        max-width: 400px;
-      }
-      
-      .icon {
-        font-size: 60px;
-        margin-bottom: 20px;
-      }
-      
-      h1 {
-        color: #333;
-        margin-bottom: 10px;
-        font-size: 28px;
-      }
-      
-      p {
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 14px;
-        line-height: 1.6;
-      }
-      
-      button {
-        background: #667eea;
-        color: white;
-        border: none;
-        padding: 14px 30px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 16px;
-        cursor: pointer;
-        margin-bottom: 10px;
-        width: 100%;
-        transition: background 0.3s;
-      }
-      
-      button:hover {
-        background: #5568d3;
-      }
-      
-      #installBtn {
-        background: #764ba2;
-      }
-      
-      #installBtn:hover {
-        background: #663a8d;
-      }
-      
-      #status {
-        font-size: 12px;
-        color: #999;
-        margin-top: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="icon">📱</div>
-      <h1>Thirty One Record</h1>
-      <p>Tu sitio web en una app instalable</p>
-      <button onclick="openSite()">Abrir Sitio</button>
-      <button id="installBtn" onclick="installApp()">Instalar App</button>
-      <div id="status">Cargando...</div>
-    </div>
+<script>
+// Detectar si la app ya está instalada (modo standalone)
+const isInstalled = window.matchMedia('(display-mode: standalone)').matches || 
+                    window.navigator.standalone === true;
 
-    <script>
-      const statusEl = document.getElementById('status');
-      const installBtn = document.getElementById('installBtn');
-      let deferredPrompt = null;
+if (isInstalled) {
+  console.log('[PWA] App ya instalada - Redirigiendo al sitio...');
+  // Redirigir automáticamente al sitio principal
+  window.location.href = 'https://www.thirtyonerecord.com';
+}
 
-      function openSite() {
-        window.open('https://www.thirtyonerecord.com', '_blank');
-      }
+const statusEl = document.getElementById('status');
+const installBtn = document.getElementById('installBtn');
+let deferredPrompt = null;
 
-      async function installApp() {
-        statusEl.textContent = 'Intentando instalar...';
-        
-        if (!deferredPrompt) {
-          statusEl.textContent = 'Instalación no disponible. Intenta desde el menú de Chrome (⋮).';
-          return;
-        }
-        
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        
-        if (outcome === 'accepted') {
-          statusEl.textContent = '✓ App instalada';
-        } else {
-          statusEl.textContent = 'Instalación cancelada';
-        }
-        
-        deferredPrompt = null;
-      }
+function openSite() {
+  window.open('https://www.thirtyonerecord.com', '_blank');
+}
 
-      window.addEventListener('beforeinstallprompt', (e) => {
-        console.log('[PWA] beforeinstallprompt disparado');
-        e.preventDefault();
-        deferredPrompt = e;
-        statusEl.textContent = '✓ App lista para instalar';
-      });
+async function installApp() {
+  statusEl.textContent = 'Intentando instalar...';
+  
+  if (!deferredPrompt) {
+    statusEl.textContent = 'App ya instalada o no disponible para instalar';
+    return;
+  }
 
-      window.addEventListener('appinstalled', () => {
-        console.log('[PWA] App instalada correctamente');
-        statusEl.textContent = '✓ App instalada en tu dispositivo';
-        deferredPrompt = null;
-      });
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  
+  if (outcome === 'accepted') {
+    console.log('[PWA] Instalación aceptada');
+    statusEl.textContent = '✓ App instalada en tu dispositivo';
+  } else {
+    statusEl.textContent = 'Instalación cancelada';
+  }
+  
+  deferredPrompt = null;
+}
 
-      // Service Worker Registration
-      if ('serviceWorker' in navigator) {
-       navigator.serviceWorker.register('/sw.js', { scope: '/' })
-          .then(registration => {
-            console.log('[PWA] SW registrado:', registration.scope);
-            statusEl.textContent = 'Service Worker: ✓';
-          })
-          .catch(error => {
-            console.error('[PWA] Error SW:', error);
-            statusEl.textContent = 'Error: ' + error.message;
-          });
-      } else {
-        statusEl.textContent = 'Service Worker no soportado';
-      }
-    </script>
-  </body>
-</html>
+window.addEventListener('beforeinstallprompt', (e) => {
+  console.log('[PWA] beforeinstallprompt disparado');
+  e.preventDefault();
+  deferredPrompt = e;
+  statusEl.textContent = '✓ App lista para instalar';
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] App instalada correctamente');
+  statusEl.textContent = '✓ App instalada en tu dispositivo';
+  deferredPrompt = null;
+});
+
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js', { scope: '/' })
+    .then(registration => {
+      console.log('[PWA] SW registrado:', registration.scope);
+      statusEl.textContent = 'Service Worker: ✓';
+    })
+    .catch(error => {
+      console.error('[PWA] Error SW:', error);
+      statusEl.textContent = 'Error: ' + error.message;
+    });
+} else {
+  statusEl.textContent = 'Service Worker no soportado';
+}
+</script>
