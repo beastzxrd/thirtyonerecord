@@ -1,0 +1,16 @@
+{
+  "name": "pwa-app",
+  "version": "1.0.0",
+  "description": "A Progressive Web App",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "npm run build && vite preview"
+  },
+  "dependencies": {
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.17.0"
+  }
+}

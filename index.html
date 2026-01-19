@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thirty One Record</title>
+    <meta name="description" content="Thirty One Record - Progressive Web App" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <!-- Manifest and Icons -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <base href="/" />
+  </head>
+  <body>
+    <div id="app">
+      <h1>Thirty One Record</h1>
+      <p id="status">Cargando...</p>
+      <button id="installBtn" style="display:none;">Instalar Aplicación</button>
+    </div>
+
+    <script>
+      // PWA Installation
+      let deferredPrompt;
+      const installBtn = document.getElementById('installBtn');
+      const statusEl = document.getElementById('status');
+
+      // Show install prompt
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+        statusEl.textContent = '✓ App lista para instalar';
+      });
+
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`[PWA] Usuario eligió: ${outcome}`);
+          deferredPrompt = null;
+          installBtn.style.display = 'none';
+        }
+      });
+
+      // Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('[PWA] SW registrado:', registration);
+              statusEl.textContent = '✓ Online - App instalable';
+            })
+            .catch(error => {
+              console.log('[PWA] Error registrando SW:', error);
+              statusEl.textContent = '✗ Error cargando app';
+            });
+        });
+      }
+
+      // Online/Offline Detection
+      window.addEventListener('online', () => {
+        statusEl.textContent = '✓ Online';
+      });
+
+      window.addEventListener('offline', () => {
+        statusEl.textContent = '✗ Offline';
+      });
+    </script>
+  </body>
+</html>
