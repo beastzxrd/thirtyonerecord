@@ -2,33 +2,33 @@
   "name": "Thirty One Record",
   "short_name": "Thirty One",
   "description": "Thirty One Record - Tu sitio web en una app",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/thirtyonerecord/",
+  "scope": "/thirtyonerecord/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#667eea",
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/thirtyonerecord/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/thirtyonerecord/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/thirtyonerecord/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/thirtyonerecord/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

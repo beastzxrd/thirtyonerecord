@@ -1,10 +1,10 @@
 const CACHE_NAME = 'thirtyonerecord-cache-v1';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/thirtyonerecord/',
+  '/thirtyonerecord/index.html',
+  '/thirtyonerecord/manifest.json',
+  '/thirtyonerecord/icon-192.png',
+  '/thirtyonerecord/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -54,7 +54,7 @@ self.addEventListener('fetch', (event) => {
 
         return response;
       }).catch(() => {
-        return caches.match('/index.html');
+        return caches.match('/thirtyonerecord/index.html');
       });
     })
   );
