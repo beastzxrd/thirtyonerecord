@@ -149,7 +149,7 @@
 
       // Service Worker Registration
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/thirtyonerecord/sw.js', { scope: '/thirtyonerecord/' })
+       navigator.serviceWorker.register('/sw.js', { scope: '/' })
           .then(registration => {
             console.log('[PWA] SW registrado:', registration.scope);
             statusEl.textContent = 'Service Worker: ✓';
