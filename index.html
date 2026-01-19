@@ -88,8 +88,10 @@
         background: #663a8d;
       }
       
-      #installBtn.hidden {
-        display: none;
+      #status {
+        font-size: 12px;
+        color: #999;
+        margin-top: 10px;
       }
     </style>
   </head>
@@ -99,45 +101,65 @@
       <h1>Thirty One Record</h1>
       <p>Tu sitio web en una app instalable</p>
       <button onclick="openSite()">Abrir Sitio</button>
-      <button id="installBtn" class="hidden">Instalar App</button>
+      <button id="installBtn" onclick="installApp()">Instalar App</button>
+      <div id="status">Cargando...</div>
     </div>
 
     <script>
+      const statusEl = document.getElementById('status');
+      const installBtn = document.getElementById('installBtn');
+      let deferredPrompt = null;
+
       function openSite() {
         window.open('https://www.thirtyonerecord.com', '_blank');
       }
 
-      // PWA Installation
-      let deferredPrompt;
-      const installBtn = document.getElementById('installBtn');
+      async function installApp() {
+        statusEl.textContent = 'Intentando instalar...';
+        
+        if (!deferredPrompt) {
+          statusEl.textContent = 'Instalación no disponible. Intenta desde el menú de Chrome (⋮).';
+          return;
+        }
+        
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+          statusEl.textContent = '✓ App instalada';
+        } else {
+          statusEl.textContent = 'Instalación cancelada';
+        }
+        
+        deferredPrompt = null;
+      }
 
       window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('[PWA] beforeinstallprompt disparado');
         e.preventDefault();
         deferredPrompt = e;
-        installBtn.classList.remove('hidden');
+        statusEl.textContent = '✓ App lista para instalar';
       });
 
-      installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
-          console.log(`[PWA] Usuario eligió: ${outcome}`);
-          deferredPrompt = null;
-          installBtn.classList.add('hidden');
-        }
+      window.addEventListener('appinstalled', () => {
+        console.log('[PWA] App instalada correctamente');
+        statusEl.textContent = '✓ App instalada en tu dispositivo';
+        deferredPrompt = null;
       });
 
       // Service Worker Registration
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-              console.log('[PWA] Service Worker registrado');
-            })
-            .catch(error => {
-              console.log('[PWA] Error registrando SW:', error);
-            });
-        });
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('[PWA] SW registrado:', registration.scope);
+            statusEl.textContent = 'Service Worker: ✓';
+          })
+          .catch(error => {
+            console.error('[PWA] Error SW:', error);
+            statusEl.textContent = 'Error: ' + error.message;
+          });
+      } else {
+        statusEl.textContent = 'Service Worker no soportado';
       }
     </script>
   </body>
